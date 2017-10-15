@@ -235,12 +235,13 @@ async def on_message(message):
                 await client.send_message(message.channel,embed=em)
             except:
                 await client.send_message(message.channel,'Out of Buffer! Change the search string.')
-            wikipg=wikipedia.page(contentstr)
+            
             try:
+                wikipg=wikipedia.page(contentstr)
                 await client.send_message(message.channel,wikipg.title)
                 await client.send_message(message.channel,wikipg.url)
             except:
-                await client.send_message(message.channel,'Out of Buffer! Change the search string.')
+                await client.send_message(message.channel,'Emmmm....Something wrong')
         else:
             await client.send_message(message.channel,'404 Not Found!')
         
