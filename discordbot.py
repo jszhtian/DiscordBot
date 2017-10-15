@@ -6,7 +6,9 @@ import urllib.request
 import asyncio
 import re
 import time
+import wikipedia
 from bs4 import BeautifulSoup
+from googletrans import Translator
 
 import discord
 
@@ -170,6 +172,16 @@ async def on_message(message):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         await client.send_message(message.channel, 'Bot ver:'+'20171015')
 
+    elif message.content.startswith('!translate'):
+        await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
+        contentStr=message.content[11:]
+        try:          
+            translator = Translator()
+            result=translator.translate(contentStr,dest='zh-cn').text
+            await client.send_message(message.channel, 'Translate Result:'+result)
+        except:
+            await client.send_message(message.channel,'Emmmm... Something wrong?')
+
     elif message.content.startswith('!img'):
         if message.content=='!img':
             await client.send_message(message.channel,'Emmmm... No parameter found.')
@@ -206,6 +218,33 @@ async def on_message(message):
         await client.send_message(message.channel, "Possible video:")
         await client.send_message(message.channel, "http://www.youtube.com/watch?v=" + search_results[0])
     
+    elif message.content.startswith('!wiki'):
+        await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
+        if message.content=='!wiki':
+            await client.send_message(message.channel,'Emmmm... No parameter found.')
+            return
+        wikipedia.set_lang("zh")
+        contentstr=message.content[6:]
+        wikidir=wikipedia.search(contentstr)
+        dirpayload=''
+        if len(wikidir)>1:
+            for line in wikidir:
+                dirpayload+=line+'\n'
+            em=discord.Embed(title='Wiki Search Result:',description=dirpayload,colour=0xDEADBF)
+            try:
+                await client.send_message(message.channel,embed=em)
+            except:
+                await client.send_message(message.channel,'Out of Buffer! Change the search string.')
+            wikipg=wikipedia.page(contentstr)
+            try:
+                await client.send_message(message.channel,wikipg.title)
+                await client.send_message(message.channel,wikipg.url)
+            except:
+                await client.send_message(message.channel,'Out of Buffer! Change the search string.')
+        else:
+            await client.send_message(message.channel,'404 Not Found!')
+        
+
     elif message.content.startswith('!help'):
         await client.send_message(message.channel,'<@'+str(message.author.id)+'>')
         payload="vndb|bangumi string:search string in VNDB.org/bangumi.tv"+'\n'
@@ -214,6 +253,8 @@ async def on_message(message):
         payload+="time:get the Bot server time"+'\n'
         payload+="vndb|bangumi direct number:Direct access the number website in VNDB.org/bangumi.tv"+'\n'
         payload+="img imgURL:Google image lookup"+'\n'
+        payload+="wiki String:search in wikipedia"+'\n'
+        payload+="translate String:translate string to CHS."+'\n'
         payload+="y2b string:Search the string in youtube.com"
         em=discord.Embed(title='Function List:',description=payload,colour=0xDEADBF)
         await client.send_message(message.channel, embed=em)
